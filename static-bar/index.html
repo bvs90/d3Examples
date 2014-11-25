@@ -4,6 +4,19 @@
   <meta charset="utf-8">
   <title>Bar Chart - Static Dataset</title>
   <script src="../d3/d3.js"></script>
+  <style>
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+    }
+
+    .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+    }
+  </style>
 </head>
 <body>
   <div class="canvas"></div>
@@ -14,24 +27,25 @@
     var dataSet = [1, 2, 3, 4, 5];
 
     // create SVG element
-    var width = 800,
-        height = 400,
-        barPadding = 10 
+    var w = 800,
+        h = 400,
+        barPadding = 10,
+        padding = 30 
 
     var svg = d3.select('.canvas').append('svg')
       .attr({
-        width: width,
-        height: height
+        width: w,
+        height: h
       });
 
     // create bars
     var xScale = d3.scale.ordinal()
       .domain(d3.range(dataSet.length))
-      .rangeRoundBands([0,width], 0.05);
+      .rangeRoundBands([0, w], 0.2);
 
     var yScale = d3.scale.linear()
       .domain([0, d3.max(dataSet)])
-      .range([0, height]);
+      .range([0, h]);
 
     svg.selectAll('rect')
       .data(dataSet)
@@ -46,10 +60,21 @@
           return xScale(i);
         },
         y: function(d) {
-          return height - yScale(d);
+          return h - yScale(d) - padding * 1.25;
         }
       });
 
+
+    // create axes 
+    var xAxis = d3.svg.axis()
+      .scale(xScale)
+      .orient('bottom')
+      .ticks(5)   
+
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(0, ' + (h - padding) + ')')
+      .call(xAxis);
 
   </script>
 </body>
