@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Bar Chart - Static Dataset</title>
+  <script src="../d3/d3.js"></script>
+</head>
+<body>
+  <div class="canvas"></div>
+
+  <script>
+
+    // data
+    var dataSet = [1, 2, 3, 4, 5];
+
+    // create SVG element
+    var width = 800,
+        height = 400,
+        barPadding = 10 
+
+    var svg = d3.select('.canvas').append('svg')
+      .attr({
+        width: width,
+        height: height
+      });
+
+    // create bars
+    var xScale = d3.scale.ordinal()
+      .domain(d3.range(dataSet.length))
+      .rangeRoundBands([0,width], 0.05);
+
+    var yScale = d3.scale.linear()
+      .domain([0, d3.max(dataSet)])
+      .range([0, height]);
+
+    svg.selectAll('rect')
+      .data(dataSet)
+      .enter()
+      .append('rect')
+      .attr({
+        width: xScale.rangeBand(),
+        height: function(d) {
+          return yScale(d);
+        },
+        x: function(d, i) {
+          return xScale(i);
+        },
+        y: function(d) {
+          return height - yScale(d);
+        }
+      });
+
+
+  </script>
+</body>
+</html>
