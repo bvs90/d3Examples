@@ -28,9 +28,10 @@
 
     // create SVG element
     var w = 800,
-        h = 400,
-        barPadding = 10,
-        padding = 30 
+        h = 400;
+        
+    var barPadding = 10,
+        padding = 20 
 
     var svg = d3.select('.canvas').append('svg')
       .attr({
@@ -45,7 +46,8 @@
 
     var yScale = d3.scale.linear()
       .domain([0, d3.max(dataSet)])
-      .range([0, h]);
+      .range([0, h - (padding * 2)]);
+      // .range([h, 0]);
 
     svg.selectAll('rect')
       .data(dataSet)
@@ -60,14 +62,20 @@
           return xScale(i);
         },
         y: function(d) {
-          return h - yScale(d) - padding * 1.25;
+          return h - yScale(d) - padding;
         }
       });
 
 
-    // create axes 
+    //  X Axis
+    var xAxesScale = d3.scale.ordinal()
+      // .domain([0, d3.max(dataSet)])
+      // .range([padding, w - padding])
+      .domain(d3.range(dataSet.length))
+      .rangeRoundBands([0, w], 0.2);      
+
     var xAxis = d3.svg.axis()
-      .scale(xScale)
+      .scale(xAxesScale)
       .orient('bottom')
       .ticks(5)   
 
@@ -75,6 +83,24 @@
       .attr('class', 'axis')
       .attr('transform', 'translate(0, ' + (h - padding) + ')')
       .call(xAxis);
+
+
+    // Y Axis
+    var yAxesScale = d3.scale.linear()
+      .domain([0, d3.max(dataSet)])
+      .range([h - padding, padding]);
+
+    var yAxis = d3.svg.axis()
+      .scale(yAxesScale)
+      .orient('left')
+      .ticks(5)
+
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(' + padding + ', 0)')
+      .call(yAxis);
+
+
 
   </script>
 </body>
