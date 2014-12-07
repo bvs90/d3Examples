@@ -24,7 +24,7 @@
   <script>
 
     // data
-    var dataSet = [1, 2, 3, 4, 5];
+    var dataSet = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
     // create SVG element
     var w = 800,
@@ -42,12 +42,11 @@
     // create bars
     var xScale = d3.scale.ordinal()
       .domain(d3.range(dataSet.length))
-      .rangeRoundBands([0, w], 0.2);
+      .rangeRoundBands([0, w], 0.25);
 
     var yScale = d3.scale.linear()
       .domain([0, d3.max(dataSet)])
       .range([0, h - (padding * 2)]);
-      // .range([h, 0]);
 
     svg.selectAll('rect')
       .data(dataSet)
@@ -69,8 +68,6 @@
 
     //  X Axis
     var xAxesScale = d3.scale.ordinal()
-      // .domain([0, d3.max(dataSet)])
-      // .range([padding, w - padding])
       .domain(d3.range(dataSet.length))
       .rangeRoundBands([0, w], 0.2);      
 
