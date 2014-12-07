@@ -24,14 +24,29 @@
   <script>
 
     // data
-    var dataSet = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    var dataSet = [ 
+      {name: 'a', goals: 130},
+      {name: 'b', goals: 151},
+      {name: 'c', goals: 158},
+      {name: 'd', goals: 172},
+      {name: 'e', goals: 177},
+      {name: 'f', goals: 183},
+      {name: 'g', goals: 228},
+      {name: 'h', goals: 241},
+      {name: 'i', goals: 286},
+      {name: 'j', goals: 346}, 
+    ];
+
+    var maxGoals = d3.max(dataSet, function(d) {
+      return d.goals;
+    });
 
     // create SVG element
     var w = 800,
         h = 400;
         
     var barPadding = 10,
-        padding = 20 
+        padding = 30 
 
     var svg = d3.select('.canvas').append('svg')
       .attr({
@@ -42,10 +57,10 @@
     // create bars
     var xScale = d3.scale.ordinal()
       .domain(d3.range(dataSet.length))
-      .rangeRoundBands([0, w], 0.25);
+      .rangeRoundBands([0 + padding, w], 0.25);
 
     var yScale = d3.scale.linear()
-      .domain([0, d3.max(dataSet)])
+      .domain([0, maxGoals])
       .range([0, h - (padding * 2)]);
 
     svg.selectAll('rect')
@@ -55,21 +70,28 @@
       .attr({
         width: xScale.rangeBand(),
         height: function(d) {
-          return yScale(d);
+          return yScale(d.goals);
         },
         x: function(d, i) {
           return xScale(i);
         },
         y: function(d) {
-          return h - yScale(d) - padding;
+          return h - yScale(d.goals) - padding;
         }
       });
 
 
     //  X Axis
+    var playerNames = [];
+    
+    for(var i = 0; i < dataSet.length; i++) {
+      playerNames.push(dataSet[i].name);
+    }
+
     var xAxesScale = d3.scale.ordinal()
-      .domain(d3.range(dataSet.length))
-      .rangeRoundBands([0, w], 0.2);      
+      // .domain(d3.range(dataSet.length))
+      .domain(playerNames)
+      .rangeRoundBands([padding, w], 0.1);      
 
     var xAxis = d3.svg.axis()
       .scale(xAxesScale)
@@ -77,23 +99,23 @@
       .ticks(5)   
 
     svg.append('g')
-      .attr('class', 'axis')
+      .attr('class', 'axis x-axis')
       .attr('transform', 'translate(0, ' + (h - padding) + ')')
       .call(xAxis);
 
 
     // Y Axis
     var yAxesScale = d3.scale.linear()
-      .domain([0, d3.max(dataSet)])
+      .domain([0, maxGoals])
       .range([h - padding, padding]);
 
     var yAxis = d3.svg.axis()
       .scale(yAxesScale)
       .orient('left')
-      .ticks(5)
+      .ticks(10)
 
     svg.append('g')
-      .attr('class', 'axis')
+      .attr('class', 'axis y-axis')
       .attr('transform', 'translate(' + padding + ', 0)')
       .call(yAxis);
 
