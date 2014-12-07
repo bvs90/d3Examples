@@ -2,9 +2,19 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Bar Chart - Static Dataset</title>
+  <title>Bar Chart - Liverpool FC All-Time Top Goalscorers</title>
   <script src="../d3/d3.js"></script>
   <style>
+    .canvas {
+      width: 1000px;
+      margin: 0 auto;
+    }
+
+    text {
+      font-family: sans-serif;
+      font-size: 11px;
+    }
+
     .axis path,
     .axis line {
       fill: none;
@@ -12,10 +22,11 @@
       shape-rendering: crispEdges;
     }
 
-    .axis text {
-      font-family: sans-serif;
-      font-size: 11px;
+    .bar-text {
+      fill: white;
+      text-anchor: middle;
     }
+
   </style>
 </head>
 <body>
@@ -25,16 +36,16 @@
 
     // data
     var dataSet = [ 
-      {name: 'a', goals: 130},
-      {name: 'b', goals: 151},
-      {name: 'c', goals: 158},
-      {name: 'd', goals: 172},
-      {name: 'e', goals: 177},
-      {name: 'f', goals: 183},
-      {name: 'g', goals: 228},
-      {name: 'h', goals: 241},
-      {name: 'i', goals: 286},
-      {name: 'j', goals: 346}, 
+      {name: 'Jack Parkinson', goals: 130},
+      {name: 'Harry Chambers', goals: 151},
+      {name: 'Michael Owen', goals: 158},
+      {name: 'Kenny Dalglish', goals: 172},
+      {name: 'Steven Gerard', goals: 177},
+      {name: 'Robbie Fowler', goals: 183},
+      {name: 'Billy Liddell', goals: 228},
+      {name: 'Gordon Hodgson', goals: 241},
+      {name: 'Roger Hunt', goals: 286},
+      {name: 'Ian Rush', goals: 346}, 
     ];
 
     var maxGoals = d3.max(dataSet, function(d) {
@@ -42,7 +53,7 @@
     });
 
     // create SVG element
-    var w = 800,
+    var w = 1000,
         h = 400;
         
     var barPadding = 10,
@@ -57,7 +68,7 @@
     // create bars
     var xScale = d3.scale.ordinal()
       .domain(d3.range(dataSet.length))
-      .rangeRoundBands([0 + padding, w], 0.25);
+      .rangeRoundBands([0 + padding, w], 0.2);
 
     var yScale = d3.scale.linear()
       .domain([0, maxGoals])
@@ -77,9 +88,29 @@
         },
         y: function(d) {
           return h - yScale(d.goals) - padding;
-        }
+        },
+        fill: '#c31014'
       });
 
+
+    // add labels to the bars
+    svg.selectAll('text')
+      .data(dataSet)
+      .enter()
+      .append('text')
+      .text(function(d) {
+        return d.goals;
+      })
+      .attr({
+        x: function(d, i) {
+          var barWidth = xScale.rangeBand();
+          return xScale(i) + barWidth / 2;
+        },
+        y: function(d) {
+          return h - yScale(d.goals);
+        },
+        'class': 'bar-text'
+      });
 
     //  X Axis
     var playerNames = [];
@@ -89,9 +120,8 @@
     }
 
     var xAxesScale = d3.scale.ordinal()
-      // .domain(d3.range(dataSet.length))
       .domain(playerNames)
-      .rangeRoundBands([padding, w], 0.1);      
+      .rangeRoundBands([padding, w], 0.2);      
 
     var xAxis = d3.svg.axis()
       .scale(xAxesScale)
@@ -118,7 +148,6 @@
       .attr('class', 'axis y-axis')
       .attr('transform', 'translate(' + padding + ', 0)')
       .call(yAxis);
-
 
 
   </script>
