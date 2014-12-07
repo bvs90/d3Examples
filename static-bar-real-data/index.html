@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Bar Chart - Static Dataset</title>
+  <script src="../d3/d3.js"></script>
+  <style>
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+    }
+
+    .axis text {
+      font-family: sans-serif;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas"></div>
+
+  <script>
+
+    // data
+    var dataSet = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    // create SVG element
+    var w = 800,
+        h = 400;
+        
+    var barPadding = 10,
+        padding = 20 
+
+    var svg = d3.select('.canvas').append('svg')
+      .attr({
+        width: w,
+        height: h
+      });
+
+    // create bars
+    var xScale = d3.scale.ordinal()
+      .domain(d3.range(dataSet.length))
+      .rangeRoundBands([0, w], 0.25);
+
+    var yScale = d3.scale.linear()
+      .domain([0, d3.max(dataSet)])
+      .range([0, h - (padding * 2)]);
+
+    svg.selectAll('rect')
+      .data(dataSet)
+      .enter()
+      .append('rect')
+      .attr({
+        width: xScale.rangeBand(),
+        height: function(d) {
+          return yScale(d);
+        },
+        x: function(d, i) {
+          return xScale(i);
+        },
+        y: function(d) {
+          return h - yScale(d) - padding;
+        }
+      });
+
+
+    //  X Axis
+    var xAxesScale = d3.scale.ordinal()
+      .domain(d3.range(dataSet.length))
+      .rangeRoundBands([0, w], 0.2);      
+
+    var xAxis = d3.svg.axis()
+      .scale(xAxesScale)
+      .orient('bottom')
+      .ticks(5)   
+
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(0, ' + (h - padding) + ')')
+      .call(xAxis);
+
+
+    // Y Axis
+    var yAxesScale = d3.scale.linear()
+      .domain([0, d3.max(dataSet)])
+      .range([h - padding, padding]);
+
+    var yAxis = d3.svg.axis()
+      .scale(yAxesScale)
+      .orient('left')
+      .ticks(5)
+
+    svg.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(' + padding + ', 0)')
+      .call(yAxis);
+
+
+
+  </script>
+</body>
+</html>
+
