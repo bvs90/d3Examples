@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Bar Chart - Liverpool FC All-Time Top Goalscorers</title>
+  <script src="../d3/d3.js"></script>
+  <style>
+    .canvas {
+      width: 1000px;
+      margin: 0 auto;
+    }
+
+    .canvas h1 {
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 16px;
+      font-weight: normal;
+    }
+
+    text {
+      font-family: sans-serif;
+      font-size: 11px;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
+    }
+
+    .bar-text {
+      fill: white;
+      text-anchor: middle;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <h1>Liverpool FC All-Time Top Goalscorers</h1>
+  </div>
+
+  <script>
+
+    function viz() {  
+      // data
+      var dataSet = [ 
+        {name: 'Jack Parkinson', goals: 130},
+        {name: 'Harry Chambers', goals: 151},
+        {name: 'Michael Owen', goals: 158},
+        {name: 'Kenny Dalglish', goals: 172},
+        {name: 'Steven Gerard', goals: 177},
+        {name: 'Robbie Fowler', goals: 183},
+        {name: 'Billy Liddell', goals: 228},
+        {name: 'Gordon Hodgson', goals: 241},
+        {name: 'Roger Hunt', goals: 286},
+        {name: 'Ian Rush', goals: 346}, 
+      ];
+
+      var maxGoals = d3.max(dataSet, function(d) {
+        return d.goals;
+      });
+
+      // create SVG element
+      var w = 1000,
+          h = 400;
+          
+      var barPadding = 10,
+          padding = 30 
+
+      var svg = d3.select('.canvas').append('svg')
+        .attr({
+          width: w,
+          height: h
+        });
+
+      // create bars
+      var xScale = d3.scale.ordinal()
+        .domain(d3.range(dataSet.length))
+        .rangeRoundBands([0 + padding, w], 0.2);
+
+      var yScale = d3.scale.linear()
+        .domain([0, maxGoals])
+        .range([0, h - (padding * 2)]);
+
+      svg.selectAll('rect')
+        .data(dataSet)
+        .enter()
+        .append('rect')
+        .attr({
+          width: xScale.rangeBand(),
+          height: function(d) {
+            return yScale(d.goals);
+          },
+          x: function(d, i) {
+            return xScale(i);
+          },
+          y: function(d) {
+            return h - yScale(d.goals) - padding;
+          },
+          fill: '#c31014'
+        });
+
+
+      // add labels to the bars
+      svg.selectAll('text')
+        .data(dataSet)
+        .enter()
+        .append('text')
+        .text(function(d) {
+          return d.goals;
+        })
+        .attr({
+          x: function(d, i) {
+            var barWidth = xScale.rangeBand();
+            return xScale(i) + barWidth / 2;
+          },
+          y: function(d) {
+            return h - yScale(d.goals);
+          },
+          'class': 'bar-text'
+        });
+
+      //  X Axis
+      var playerNames = [];
+      
+      for(var i = 0; i < dataSet.length; i++) {
+        playerNames.push(dataSet[i].name);
+      }
+
+      var xAxesScale = d3.scale.ordinal()
+        .domain(playerNames)
+        .rangeRoundBands([padding, w], 0.2);      
+
+      var xAxis = d3.svg.axis()
+        .scale(xAxesScale)
+        .orient('bottom')
+        .ticks(5)   
+
+      svg.append('g')
+        .attr('class', 'axis x-axis')
+        .attr('transform', 'translate(0, ' + (h - padding) + ')')
+        .call(xAxis);
+
+
+      // Y Axis
+      var yAxesScale = d3.scale.linear()
+        .domain([0, maxGoals])
+        .range([h - padding, padding]);
+
+      var yAxis = d3.svg.axis()
+        .scale(yAxesScale)
+        .orient('left')
+        .ticks(10)
+
+      svg.append('g')
+        .attr('class', 'axis y-axis')
+        .attr('transform', 'translate(' + padding + ', 0)')
+        .call(yAxis);
+
+    }
+
+    window.onload = viz;
+
+  </script>
+</body>
+</html>
+
+
