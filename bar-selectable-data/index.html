@@ -2,15 +2,15 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Bar Chart - Liverpool FC All-Time Top Goalscorers</title>
+  <title>Bar Chart - All-Time Top Goalscorers (Select Club)</title>
   <script src="../d3/d3.js"></script>
   <style>
-    .canvas {
+    .container {
       width: 1000px;
       margin: 0 auto;
     }
 
-    .canvas h1 {
+    .container h1 {
       text-align: center;
       font-family: sans-serif;
       font-size: 16px;
@@ -37,26 +37,21 @@
   </style>
 </head>
 <body>
-  <div class="canvas">
-    <h1>Liverpool FC All-Time Top Goalscorers</h1>
+  <div class="container">
+    <h1>All-Time Top Goalscorers (Select Club)</h1>
+    <select id="team">
+      <option value='default'>Select a Team</option>
+      <option value='liverpool'>Liverpool</option>
+      <option value='man-utd'>Manchester United</option>
+    </select>
+    <div class="canvas"></div>
   </div>
 
   <script>
 
-    function viz() {  
+    function viz(data) {  
       // data
-      var dataSet = [ 
-        {name: 'Jack Parkinson', goals: 130},
-        {name: 'Harry Chambers', goals: 151},
-        {name: 'Michael Owen', goals: 158},
-        {name: 'Kenny Dalglish', goals: 172},
-        {name: 'Steven Gerard', goals: 177},
-        {name: 'Robbie Fowler', goals: 183},
-        {name: 'Billy Liddell', goals: 228},
-        {name: 'Gordon Hodgson', goals: 241},
-        {name: 'Roger Hunt', goals: 286},
-        {name: 'Ian Rush', goals: 346}, 
-      ];
+      var dataSet = data;
 
       var maxGoals = d3.max(dataSet, function(d) {
         return d.goals;
@@ -67,9 +62,10 @@
           h = 400;
           
       var barPadding = 10,
-          padding = 30 
+          padding = 30; 
 
-      var svg = d3.select('.canvas').append('svg')
+      var svg = d3.select('.canvas')
+        .append('svg')
         .attr({
           width: w,
           height: h
@@ -161,7 +157,40 @@
 
     }
 
-    window.onload = viz;
+
+    // Team Selection
+    function initEvents() {
+      var select = document.querySelector('#team');
+      var canvas = document.querySelector('.canvas');
+
+      select.onchange = function() {
+
+        while (canvas.firstChild) {
+          canvas.removeChild(canvas.firstChild);
+        }
+
+        var team = this.value;
+        viz(dataLibrary[team]);
+      }
+    }
+
+    var dataLibrary = {
+      'liverpool': [
+        {name: 'Jack Parkinson', goals: 130},
+        {name: 'Harry Chambers', goals: 151},
+        {name: 'Michael Owen', goals: 158},
+        {name: 'Kenny Dalglish', goals: 172},
+        {name: 'Steven Gerard', goals: 177},
+        {name: 'Robbie Fowler', goals: 183},
+        {name: 'Billy Liddell', goals: 228},
+        {name: 'Gordon Hodgson', goals: 241},
+        {name: 'Roger Hunt', goals: 286},
+        {name: 'Ian Rush', goals: 346}
+      ]
+    
+    }
+
+    window.onload = initEvents();
 
   </script>
 </body>
