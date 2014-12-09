@@ -40,9 +40,9 @@
   <div class="container">
     <h1>All-Time Top Goalscorers (Select Club)</h1>
     <select id="team">
-      <option value='default'>Select a Team</option>
       <option value='liverpool'>Liverpool</option>
       <option value='man-utd'>Manchester United</option>
+      <option value='chelsea'>Chelsea</option>
     </select>
     <div class="canvas"></div>
   </div>
@@ -53,7 +53,7 @@
       // data
       var dataSet = data;
 
-      var maxGoals = d3.max(dataSet, function(d) {
+      var maxGoals = d3.max(dataSet.scorers, function(d) {
         return d.goals;
       });
 
@@ -73,7 +73,7 @@
 
       // create bars
       var xScale = d3.scale.ordinal()
-        .domain(d3.range(dataSet.length))
+        .domain(d3.range(dataSet.scorers.length))
         .rangeRoundBands([0 + padding, w], 0.2);
 
       var yScale = d3.scale.linear()
@@ -81,7 +81,7 @@
         .range([0, h - (padding * 2)]);
 
       svg.selectAll('rect')
-        .data(dataSet)
+        .data(dataSet.scorers)
         .enter()
         .append('rect')
         .attr({
@@ -95,13 +95,12 @@
           y: function(d) {
             return h - yScale(d.goals) - padding;
           },
-          fill: '#c31014'
+          fill: dataSet.color
         });
-
 
       // add labels to the bars
       svg.selectAll('text')
-        .data(dataSet)
+        .data(dataSet.scorers)
         .enter()
         .append('text')
         .text(function(d) {
@@ -121,8 +120,8 @@
       //  X Axis
       var playerNames = [];
       
-      for(var i = 0; i < dataSet.length; i++) {
-        playerNames.push(dataSet[i].name);
+      for(var i = 0; i < dataSet.scorers.length; i++) {
+        playerNames.push(dataSet.scorers[i].name);
       }
 
       var xAxesScale = d3.scale.ordinal()
@@ -155,42 +154,180 @@
         .attr('transform', 'translate(' + padding + ', 0)')
         .call(yAxis);
 
-    }
+    
 
 
     // Team Selection
-    function initEvents() {
-      var select = document.querySelector('#team');
-      var canvas = document.querySelector('.canvas');
+      d3.select('#team')
+        .on('change', function() {
 
-      select.onchange = function() {
+          var team = this.value;
+          var dataSet = dataLibrary[team];
 
-        while (canvas.firstChild) {
-          canvas.removeChild(canvas.firstChild);
-        }
+          var maxGoals = d3.max(dataSet.scorers, function(d) {
+            return d.goals;
+          });
 
-        var team = this.value;
-        viz(dataLibrary[team]);
-      }
-    }
+          var xScale = d3.scale.ordinal()
+            .domain(d3.range(dataSet.scorers.length))
+            .rangeRoundBands([0 + padding, w], 0.2);
+
+          var yScale = d3.scale.linear()
+            .domain([0, maxGoals])
+            .range([0, h - (padding * 2)]);
+
+
+          svg.selectAll('rect')
+            .data(dataSet.scorers)
+            .transition()
+            .delay(function(d, i) {
+              return i / dataSet.scorers.length * 1000;
+            })
+            .duration(500)
+            .ease('linear')            
+            .attr({
+              width: xScale.rangeBand(),
+              height: function(d) {
+                return yScale(d.goals);
+              },
+              x: function(d, i) {
+                return xScale(i);
+              },
+              y: function(d) {
+                return h - yScale(d.goals) - padding;
+              },
+              fill: dataSet.color
+            });          
+
+          svg.selectAll('text')
+            .data(dataSet.scorers)
+            .transition()
+            .delay(function(d, i) {
+              return i / dataSet.scorers.length * 1000;
+            })
+            .duration(500)
+            .ease('linear')             
+            .text(function(d) {
+              return d.goals;
+            })
+            .attr({
+              x: function(d, i) {
+                var barWidth = xScale.rangeBand();
+                return xScale(i) + barWidth / 2;
+              },
+              y: function(d) {
+                return h - yScale(d.goals);
+              }
+            });
+
+
+          // update axes 
+          var playerNames = [];
+          
+          for(var i = 0; i < dataSet.scorers.length; i++) {
+            playerNames.push(dataSet.scorers[i].name);
+          }
+
+          var xAxesScale = d3.scale.ordinal()
+            .domain(playerNames)
+            .rangeRoundBands([padding, w], 0.2);      
+
+          var xAxis = d3.svg.axis()
+            .scale(xAxesScale)
+            .orient('bottom')
+            .ticks(5)   
+
+          svg.select('.x-axis')
+            .transition()
+            .duration(1000)
+            .call(xAxis);
+
+
+          var maxGoals = d3.max(dataSet.scorers, function(d) {
+            return d.goals;
+          });
+
+          var yAxesScale = d3.scale.linear()
+            .domain([0, maxGoals])
+            .range([h - padding, padding]);
+
+          var yAxis = d3.svg.axis()
+            .scale(yAxesScale)
+            .orient('left')
+            .ticks(10)
+
+          svg.select('.y-axis')
+            .transition()
+            .duration(1000)
+            .call(yAxis);   
+
+        });
+
+    };
 
     var dataLibrary = {
-      'liverpool': [
-        {name: 'Jack Parkinson', goals: 130},
-        {name: 'Harry Chambers', goals: 151},
-        {name: 'Michael Owen', goals: 158},
-        {name: 'Kenny Dalglish', goals: 172},
-        {name: 'Steven Gerard', goals: 177},
-        {name: 'Robbie Fowler', goals: 183},
-        {name: 'Billy Liddell', goals: 228},
-        {name: 'Gordon Hodgson', goals: 241},
-        {name: 'Roger Hunt', goals: 286},
-        {name: 'Ian Rush', goals: 346}
-      ]
-    
-    }
+      'liverpool': {
+        scorers: [
+          {name: 'Jack Parkinson', goals: 130},
+          {name: 'Harry Chambers', goals: 151},
+          {name: 'Michael Owen', goals: 158},
+          {name: 'Kenny Dalglish', goals: 172},
+          {name: 'Steven Gerard', goals: 177},
+          {name: 'Robbie Fowler', goals: 183},
+          {name: 'Billy Liddell', goals: 228},
+          {name: 'Gordon Hodgson', goals: 241},
+          {name: 'Roger Hunt', goals: 286},
+          {name: 'Ian Rush', goals: 346}
+        ],
+        color: '#c31014'
+      },
 
-    window.onload = initEvents();
+      'man-utd': {
+        scorers: [
+          {name: 'Paul Scholes', goals: 155},
+          {name: 'Mark Hughes', goals: 163},
+          {name: 'Ryan Giggs', goals: 168},
+          {name: 'Joe Spence', goals: 168},
+          {name: 'George Best', goals: 179},
+          {name: 'Dennis Viollet', goals: 179},
+          {name: 'Jack Rowley', goals: 211},
+          {name: 'Wayne Rooney', goals: 221},
+          {name: 'Denis Law', goals: 237},
+          {name: 'Bobby Charlton', goals: 249}
+        ],
+        color: '#EE3F3C'
+      },
+
+      'chelsea': {
+        scorers: [
+          {name: 'Barry Bridges', goals: 93},
+          {name: 'George Hilsdon', goals: 108},
+          {name: 'George Mills', goals: 125},
+          {name: 'Jimmy Greaves', goals: 132},
+          {name: 'Peter Osgood', goals: 150},
+          {name: 'Roy Bentley', goals: 150},
+          {name: 'Didier Drogba', goals: 163},
+          {name: 'Kerry Dixon', goals: 193},
+          {name: 'Bobby Tambling', goals: 202},
+          {name: 'Frank Lampard', goals: 211}
+        ],
+        color: '#234D99'
+      }
+
+
+    };
+
+
+    function initViz() {
+      var select = document.querySelector('select');
+      var team = select.value;
+
+      var dataSet = dataLibrary[team];
+      viz(dataSet);
+
+    };
+
+    window.onload = initViz();
 
   </script>
 </body>
